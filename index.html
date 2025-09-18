@@ -11,6 +11,10 @@
       --panel:#ffffffcc;
       --accent:#2b6b45;
       --muted:#6b7b74;
+      --araucaria-green: #357a38;
+      --araucaria-dark: #235924;
+      --trunk: #a77d4c;
+      --shadow: #b8d8c7;
     }
     *{box-sizing:border-box}
     html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
@@ -44,9 +48,124 @@
     .lightbox img{max-width:90%;max-height:90%;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.5)}
     .lightbox.active{display:flex}
     .lightbox-close{position:absolute;top:20px;right:30px;font-size:32px;color:#fff;cursor:pointer}
+
+    /* Loader Araucária */
+    .loader-araucaria-wrap{
+      position:fixed;
+      inset:0;
+      background:linear-gradient(140deg, var(--bg) 60%, #dbeee0 100%);
+      z-index:2000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:opacity 0.5s;
+    }
+    .loader-araucaria-hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .eco-loader-araucaria{
+      position:relative;
+      width:120px;
+      height:140px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      animation: floatAraucaria 2.2s ease-in-out infinite alternate;
+    }
+    @keyframes floatAraucaria {
+      to { transform: translateY(-12px) }
+    }
+    .araucaria-shadow {
+      position:absolute;
+      bottom: 0;
+      left: 37px;
+      width: 46px;
+      height: 14px;
+      background:var(--shadow);
+      border-radius:50%;
+      opacity:0.34;
+      filter: blur(2px);
+      z-index:0;
+      animation: shadowPulseAraucaria 2.2s infinite alternate;
+    }
+    @keyframes shadowPulseAraucaria {
+      0% { transform: scaleX(1) scaleY(1);}
+      100% { transform: scaleX(1.09) scaleY(.92);}
+    }
+    .araucaria-dots{
+      position:absolute;
+      bottom:-32px;
+      left:50%;
+      transform:translateX(-50%);
+      display:flex;
+      gap:6px;
+    }
+    .araucaria-dot{
+      width:10px;
+      height:10px;
+      background:var(--araucaria-green);
+      border-radius:50%;
+      opacity:.5;
+      animation: dotPulseAraucaria 1.15s infinite;
+    }
+    .araucaria-dot:nth-child(2){animation-delay: .18s;}
+    .araucaria-dot:nth-child(3){animation-delay: .36s;}
+    @keyframes dotPulseAraucaria {
+      0%, 100% { opacity:.5; transform:scale(1);}
+      50% { opacity:1; transform:scale(1.3);}
+    }
+    .araucaria-sway {
+      transform-origin: 50% 90%;
+      animation: swayAraucaria 2s infinite alternate cubic-bezier(.5,0,.5,1);
+    }
+    @keyframes swayAraucaria {
+      0% { transform: rotate(-3deg);}
+      100% { transform: rotate(4deg);}
+    }
   </style>
 </head>
 <body>
+  <!-- Loader Araucária -->
+  <div id="loader-araucaria" class="loader-araucaria-wrap">
+    <div class="eco-loader-araucaria">
+      <svg class="araucaria-sway" width="80" height="120" viewBox="0 0 80 120" fill="none">
+        <!-- Tronco -->
+        <rect x="36" y="54" width="8" height="56" rx="4" fill="var(--trunk)" />
+        <!-- Galhos principais -->
+        <g stroke="var(--araucaria-dark)" stroke-width="2">
+          <path d="M10 60 Q40 66 70 60" />
+          <path d="M14 70 Q40 76 66 70" />
+          <path d="M18 80 Q40 87 62 80" />
+          <path d="M22 92 Q40 100 58 92" />
+        </g>
+        <!-- Tufo superior -->
+        <ellipse cx="40" cy="50" rx="18" ry="8" fill="var(--araucaria-green)" />
+        <!-- Tufos nos galhos -->
+        <ellipse cx="15" cy="60" rx="5" ry="2.3" fill="var(--araucaria-green)" />
+        <ellipse cx="40" cy="66" rx="7" ry="3" fill="var(--araucaria-green)" />
+        <ellipse cx="65" cy="60" rx="5" ry="2.3" fill="var(--araucaria-green)" />
+        <ellipse cx="19" cy="70" rx="4" ry="2" fill="var(--araucaria-green)" />
+        <ellipse cx="40" cy="76" rx="6" ry="2.5" fill="var(--araucaria-green)" />
+        <ellipse cx="61" cy="70" rx="4" ry="2" fill="var(--araucaria-green)" />
+        <ellipse cx="23" cy="80" rx="3.5" ry="1.7" fill="var(--araucaria-green)" />
+        <ellipse cx="40" cy="87" rx="5" ry="2" fill="var(--araucaria-green)" />
+        <ellipse cx="57" cy="80" rx="3.5" ry="1.7" fill="var(--araucaria-green)" />
+        <ellipse cx="27" cy="92" rx="2.5" ry="1.2" fill="var(--araucaria-green)" />
+        <ellipse cx="40" cy="100" rx="4" ry="1.6" fill="var(--araucaria-green)" />
+        <ellipse cx="53" cy="92" rx="2.5" ry="1.2" fill="var(--araucaria-green)" />
+        <ellipse cx="40" cy="44" rx="6" ry="2.5" fill="var(--araucaria-dark)" />
+      </svg>
+      <div class="araucaria-shadow"></div>
+      <div class="araucaria-dots">
+        <div class="araucaria-dot"></div>
+        <div class="araucaria-dot"></div>
+        <div class="araucaria-dot"></div>
+      </div>
+    </div>
+  </div>
+  <!-- FIM Loader Araucária -->
+
   <div class="wrap">
     <header>
       <div class="brand">
@@ -103,6 +222,17 @@
   </div>
 
   <script>
+    // Loader hide logic
+    window.addEventListener('DOMContentLoaded', function() {
+      setTimeout(function() {
+        document.getElementById('loader-araucaria').classList.add('loader-araucaria-hide');
+        setTimeout(function() {
+          document.getElementById('loader-araucaria').style.display = "none";
+        }, 520);
+      }, 1700);
+    });
+
+    // Lightbox gallery
     const galleryImages = document.querySelectorAll('.gallery img');
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
