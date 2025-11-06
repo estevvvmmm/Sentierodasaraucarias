@@ -130,10 +130,10 @@
     .modal-content{background:#fff;border-radius:10px;padding:20px;max-width:1000px;width:95%;box-shadow:0 8px 40px rgba(0,0,0,0.3)}
     .modal-body{display:flex;gap:12px;flex-wrap:wrap}
     .pieces,.board{background:#f8f8f8;padding:10px;border-radius:10px}
-    .pieces{width:320px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-    .board{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-    .piece{width:70px;height:70px;background-size:400% 400%;border-radius:6px;cursor:grab}
-    .slot{width:100%;height:70px;border:2px dashed #ccc;border-radius:6px;display:flex;align-items:center;justify-content:center;background:#fff}
+    .pieces{width:320px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+    .board{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+    .piece{width:90px;height:90px;background-size:300% 300%;border-radius:6px;cursor:grab}
+    .slot{width:100%;height:90px;border:2px dashed #ccc;border-radius:6px;display:flex;align-items:center;justify-content:center;background:#fff}
     .close-btn{float:right;background:#aaa;color:#fff;border:0;border-radius:50%;width:32px;height:32px;cursor:pointer}
   </style>
 </head>
@@ -301,7 +301,7 @@ As coletas foram sustentáveis — apenas folhas e flores — e, em laboratório
     });
 
     // Código do Quebra-cabeça
-    const ROWS=4,COLS=4;
+    const ROWS=3,COLS=3;
     const piecesEl=document.getElementById('pieces');
     const boardEl=document.getElementById('board');
     const modal=document.getElementById('puzzleModal');
