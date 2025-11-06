@@ -186,7 +186,7 @@ button .ripple{position:absolute;border-radius:50%;transform:scale(0);opacity:.7
     <div class="floaters" aria-hidden="true">
       <div class="floater leaf" style="left:6%;top:12%;animation-delay:0s"></div>
       <div class="floater circle" style="right:10%;top:18%;animation-delay:1.6s"></div>
-      <div class="floater leaf" style="left:78%;top:6%;width:100px;height:100px;animation-delay:2.4s"></div>
+      <div class="floater leaf" style="left:78%;top:6%;width:100px;height:100px;animation-delay=2.4s"></div>
     </div>
 
     <!-- Loader Araucária -->
@@ -386,106 +386,118 @@ button .ripple{position:absolute;border-radius:50%;transform:scale(0);opacity:.7
     const openBtn = document.getElementById('openPuzzle');
     const closeBtn = document.getElementById('closeModal');
     const shuffleBtn = document.getElementById('shuffle');
-    let imageUrl = 'puzzle.png';
+    let imageUrl = 'puzzle.png'; // certifique-se que esta imagem existe na pasta
+
+    // Verifica se a imagem existe antes de iniciar
+    function checkImage(url) {
+        const img = new Image();
+        img.onload = function() {
+            console.log('Imagem carregada com sucesso');
+        };
+        img.onerror = function() {
+            console.error('Erro ao carregar a imagem');
+            alert('Erro ao carregar a imagem do quebra-cabeça. Verifique se puzzle.png existe na pasta do projeto.');
+        };
+        img.src = url;
+    }
 
     function makePieces(){
-      const arr = [];
-      for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) arr.push({r,c,idx: r*COLS + c});
-      return arr;
+        const arr = [];
+        for(let r=0; r<ROWS; r++) {
+            for(let c=0; c<COLS; c++) {
+                arr.push({r,c,idx: r*COLS + c});
+            }
+        }
+        return arr;
     }
 
     function setup(){
-      piecesEl.innerHTML = '';
-      boardEl.innerHTML = '';
-      const arr = makePieces().sort(()=>Math.random()-0.5);
+        piecesEl.innerHTML = '';
+        boardEl.innerHTML = '';
+        const arr = makePieces().sort(() => Math.random() - 0.5);
 
-      for(let i=0;i<ROWS*COLS;i++){
-        const s = document.createElement('div');
-        s.className = 'slot';
-        s.dataset.i = i;
-        s.addEventListener('dragover', e => e.preventDefault());
-        s.addEventListener('drop', onDrop);
-        boardEl.appendChild(s);
-      }
+        // Cria os slots do tabuleiro
+        for(let i=0; i<ROWS*COLS; i++){
+            const s = document.createElement('div');
+            s.className = 'slot';
+            s.dataset.i = i;
+            s.addEventListener('dragover', e => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+            });
+            s.addEventListener('drop', onDrop);
+            boardEl.appendChild(s);
+        }
 
-      arr.forEach(o => {
-        const e = document.createElement('div');
-        e.className = 'piece';
-        e.draggable = true;
-        e.dataset.idx = o.idx;
-        e.style.backgroundImage = 'url("' + imageUrl + '")';
-        e.style.backgroundPosition = (o.c/(COLS-1))*100 + '% ' + (o.r/(ROWS-1))*100 + '%';
-        e.addEventListener('dragstart', ev => {
-          ev.dataTransfer.setData('text/plain', JSON.stringify(o));
-          setTimeout(()=> e.style.visibility = 'hidden', 50);
+        // Cria as peças
+        arr.forEach(o => {
+            const e = document.createElement('div');
+            e.className = 'piece';
+            e.draggable = true;
+            e.dataset.idx = o.idx;
+            e.style.backgroundImage = `url('${imageUrl}')`;
+            e.style.backgroundSize = `${COLS * 100}% ${ROWS * 100}%`;
+            e.style.backgroundPosition = `${(o.c/(COLS-1))*100}% ${(o.r/(ROWS-1))*100}%`;
+            
+            e.addEventListener('dragstart', ev => {
+                ev.dataTransfer.setData('text/plain', JSON.stringify(o));
+                e.classList.add('dragging');
+                setTimeout(() => e.style.visibility = 'hidden', 50);
+            });
+            
+            e.addEventListener('dragend', () => {
+                e.classList.remove('dragging');
+                e.style.visibility = 'visible';
+            });
+            
+            piecesEl.appendChild(e);
         });
-        e.addEventListener('dragend', () => e.style.visibility = 'visible');
-        piecesEl.appendChild(e);
-      });
     }
 
     function onDrop(e){
-      e.preventDefault();
-      const data = e.dataTransfer.getData('text/plain');
-      if(!data) return;
-      const o = JSON.parse(data);
-      const slot = e.currentTarget;
-      if(slot.dataset.placed) return;
-
-      const p = document.querySelector('.piece[data-idx="'+o.idx+'"]');
-      if(!p) return;
-      slot.appendChild(p);
-      p.style.visibility = 'visible';
-      slot.dataset.placed = o.idx;
-      checkWin();
-    }
-
-    function createConfetti(){
-      const cRoot = document.getElementById('confetti');
-      const colors = ['#e94560','#f7b267','#34ace0','#78e08f','#6a89cc'];
-      for(let i=0;i<40;i++){
-        const el = document.createElement('div');
-        el.className = 'confetti-piece';
-        el.style.background = colors[Math.floor(Math.random()*colors.length)];
-        el.style.left = Math.random()*100 + 'vw';
-        el.style.top = (Math.random()*10 - 10) + 'vh';
-        el.style.width = (6 + Math.random()*12) + 'px';
-        el.style.height = (8 + Math.random()*16) + 'px';
-        el.style.opacity = (0.7 + Math.random()*0.3);
-        el.style.animationDuration = (2.4 + Math.random()*1.6) + 's';
-        el.style.transform = 'rotate('+ (Math.random()*360) +'deg)';
-        cRoot.appendChild(el);
-        setTimeout(()=> el.remove(), 4200);
-      }
+        e.preventDefault();
+        const data = e.dataTransfer.getData('text/plain');
+        if(!data) return;
+        
+        const o = JSON.parse(data);
+        const slot = e.currentTarget;
+        
+        // Se o slot já estiver ocupado, não permite o drop
+        if(slot.children.length > 0) return;
+        
+        const p = document.querySelector(`.piece[data-idx="${o.idx}"]`);
+        if(!p) return;
+        
+        slot.appendChild(p);
+        p.style.visibility = 'visible';
+        slot.dataset.placed = o.idx;
+        
+        checkWin();
     }
 
     function checkWin(){
-      const slots = [...boardEl.children];
-      if(slots.some(s => !s.dataset.placed)) return;
+        const slots = [...boardEl.children];
+        if(slots.some(s => !s.dataset.placed)) return;
 
-      const ok = slots.every(s => parseInt(s.dataset.placed, 10) === parseInt(s.dataset.i, 10));
-      if(ok){
-        createConfetti();
-        // feedback agradável
-        setTimeout(()=> alert('Parabéns! Quebra-cabeça montado ✅'), 300);
-      } else {
-        // treme as peças erradas brevemente
-        slots.forEach(s=>{
-          const idx = parseInt(s.dataset.placed||-1,10);
-          if(idx !== parseInt(s.dataset.i,10)){
-            const p = s.querySelector('.piece');
-            if(p) p.classList.add('wrong');
-            setTimeout(()=> p && p.classList.remove('wrong'), 700);
-          }
-        });
-        setTimeout(()=> alert('Quase! Tente novamente.'), 300);
-      }
+        const ok = slots.every(s => parseInt(s.dataset.placed) === parseInt(s.dataset.i));
+        if(ok){
+            createConfetti();
+            setTimeout(() => alert('Parabéns! Você completou o quebra-cabeça! 🎉'), 300);
+        }
     }
 
-    openBtn.onclick = () => { modal.classList.add('active'); setup(); }
-    closeBtn.onclick = () => { modal.classList.remove('active'); }
+    // Event Listeners
+    openBtn.onclick = () => {
+        modal.classList.add('active');
+        checkImage(imageUrl);
+        setup();
+    };
+
+    closeBtn.onclick = () => modal.classList.remove('active');
     shuffleBtn.onclick = setup;
-    modal.addEventListener('click', e => { if(e.target === modal) modal.classList.remove('active'); });
+    modal.addEventListener('click', e => {
+        if(e.target === modal) modal.classList.remove('active');
+    });
   </script>
 </body>
 
