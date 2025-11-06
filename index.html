@@ -123,6 +123,18 @@
       0% { transform: rotate(-3deg);}
       100% { transform: rotate(4deg);}
     }
+
+    /* Estilos do Quebra-cabeça */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000}
+    .modal.active{display:flex}
+    .modal-content{background:#fff;border-radius:10px;padding:20px;max-width:1000px;width:95%;box-shadow:0 8px 40px rgba(0,0,0,0.3)}
+    .modal-body{display:flex;gap:12px;flex-wrap:wrap}
+    .pieces,.board{background:#f8f8f8;padding:10px;border-radius:10px}
+    .pieces{width:320px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+    .board{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+    .piece{width:70px;height:70px;background-size:400% 400%;border-radius:6px;cursor:grab}
+    .slot{width:100%;height:70px;border:2px dashed #ccc;border-radius:6px;display:flex;align-items:center;justify-content:center;background:#fff}
+    .close-btn{float:right;background:#aaa;color:#fff;border:0;border-radius:50%;width:32px;height:32px;cursor:pointer}
   </style>
 </head>
 <body>
@@ -211,6 +223,26 @@ Angiospermas: o grupo mais diverso, com flores e frutos como o feijão, milho e 
           <p>Os alunos participaram de saídas de campo na Trilha Ecológica Sentiero das Araucárias, realizando observações, registros fotográficos e identificação das espécies com auxílio de aplicativos.
 As coletas foram sustentáveis — apenas folhas e flores — e, em laboratório, o material foi prensado e seco, resultando na criação de um herbário escolar com exemplares catalogados.</p>
         </article>
+
+        <article class="card">
+          <h3>Quebra Cabeça</h3>
+          <p>Jogo quebra-cabeça</p>
+          <button id="openPuzzle" style="margin-top:12px">Jogar Quebra-Cabeça</button>
+        </article>
+      </div>
+
+      <!-- Adicione o modal do quebra-cabeça antes do footer -->
+      <div id="puzzleModal" class="modal">
+        <div class="modal-content">
+          <button id="closeModal" class="close-btn">&times;</button>
+          <h2>Quebra-Cabeça 4x4</h2>
+          <p>Arraste as peças para montar a imagem.</p>
+          <div class="modal-body">
+            <div class="pieces" id="pieces"></div>
+            <div class="board" id="board"></div>
+          </div>
+          <button id="shuffle">Embaralhar</button>
+        </div>
       </div>
 
       <section class="card" style="margin-top:30px">
@@ -267,6 +299,68 @@ As coletas foram sustentáveis — apenas folhas e flores — e, em laboratório
         lightbox.classList.remove('active');
       }
     });
+
+    // Código do Quebra-cabeça
+    const ROWS=4,COLS=4;
+    const piecesEl=document.getElementById('pieces');
+    const boardEl=document.getElementById('board');
+    const modal=document.getElementById('puzzleModal');
+    const openBtn=document.getElementById('openPuzzle');
+    const closeBtn=document.getElementById('closeModal');
+    const shuffleBtn=document.getElementById('shuffle');
+    let imageUrl='puzzle.png';
+
+    function makePieces(){
+      const arr=[];
+      for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)arr.push({r,c,idx:r*COLS+c});
+      return arr;
+    }
+    function setup(){
+      piecesEl.innerHTML='';boardEl.innerHTML='';
+      const arr=makePieces().sort(()=>Math.random()-0.5);
+      for(let i=0;i<ROWS*COLS;i++){
+        const s=document.createElement('div');
+        s.className='slot';s.dataset.i=i;
+        s.addEventListener('dragover',e=>e.preventDefault());
+        s.addEventListener('drop',onDrop);
+        boardEl.appendChild(s);
+      }
+      arr.forEach(o=>{
+        const e=document.createElement('div');
+        e.className='piece';e.draggable=true;e.dataset.idx=o.idx;
+        e.style.backgroundImage='url("'+imageUrl+'")';
+        e.style.backgroundPosition=(o.c/(COLS-1))*100+'% '+(o.r/(ROWS-1))*100+'%';
+        e.addEventListener('dragstart',ev=>{
+          ev.dataTransfer.setData('text/plain',JSON.stringify(o));
+          setTimeout(()=>e.style.visibility='hidden',50);
+        });
+        e.addEventListener('dragend',()=>e.style.visibility='visible');
+        piecesEl.appendChild(e);
+      });
+    }
+    function onDrop(e){
+      e.preventDefault();
+      const data=e.dataTransfer.getData('text/plain');
+      if(!data)return;
+      const o=JSON.parse(data);
+      const slot=e.currentTarget;
+      if(slot.dataset.placed)return;
+      const p=document.querySelector('.piece[data-idx="'+o.idx+'"]');
+      slot.appendChild(p);
+      slot.dataset.placed=o.idx;
+      checkWin();
+    }
+    function checkWin(){
+      const s=[...boardEl.children];
+      if(s.some(x=>!x.dataset.placed))return;
+      let ok=true;
+      s.forEach((x,i)=>{if(parseInt(x.dataset.placed)!=i)ok=false;});
+      alert(ok?'Parabéns! Quebra-cabeça montado ✅':'Quase! Tente novamente.');
+    }
+    openBtn.onclick=()=>{modal.classList.add('active');setup();}
+    closeBtn.onclick=()=>{modal.classList.remove('active');}
+    shuffleBtn.onclick=setup;
+    modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('active');});
   </script>
 </body>
 
