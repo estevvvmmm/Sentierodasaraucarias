@@ -300,67 +300,84 @@ As coletas foram sustentáveis — apenas folhas e flores — e, em laboratório
       }
     });
 
-    // Código do Quebra-cabeça
-    const ROWS=3,COLS=3;
-    const piecesEl=document.getElementById('pieces');
-    const boardEl=document.getElementById('board');
-    const modal=document.getElementById('puzzleModal');
-    const openBtn=document.getElementById('openPuzzle');
-    const closeBtn=document.getElementById('closeModal');
-    const shuffleBtn=document.getElementById('shuffle');
-    let imageUrl='puzzle.png';
+    // Código do Quebra-cabeça (corrigido)
+    const ROWS = 3, COLS = 3;
+    const piecesEl = document.getElementById('pieces');
+    const boardEl = document.getElementById('board');
+    const modal = document.getElementById('puzzleModal');
+    const openBtn = document.getElementById('openPuzzle');
+    const closeBtn = document.getElementById('closeModal');
+    const shuffleBtn = document.getElementById('shuffle');
+    let imageUrl = 'puzzle.png';
 
     function makePieces(){
-      const arr=[];
-      for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++)arr.push({r,c,idx:r*COLS+c});
+      const arr = [];
+      for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) arr.push({r,c,idx: r*COLS + c});
       return arr;
     }
+
     function setup(){
-      piecesEl.innerHTML='';boardEl.innerHTML='';
-      const arr=makePieces().sort(()=>Math.random()-0.5);
+      piecesEl.innerHTML = '';
+      boardEl.innerHTML = '';
+      const arr = makePieces().sort(()=>Math.random()-0.5);
+
+      // criar slots e marcar índice em data-i
       for(let i=0;i<ROWS*COLS;i++){
-        const s=document.createElement('div');
-        s.className='slot';s.dataset.i=i;
-        s.addEventListener('dragover',e=>e.preventDefault());
-        s.addEventListener('drop',onDrop);
+        const s = document.createElement('div');
+        s.className = 'slot';
+        s.dataset.i = i;             // manter o índice do slot explicitamente
+        s.addEventListener('dragover', e => e.preventDefault());
+        s.addEventListener('drop', onDrop);
         boardEl.appendChild(s);
       }
-      arr.forEach(o=>{
-        const e=document.createElement('div');
-        e.className='piece';e.draggable=true;e.dataset.idx=o.idx;
-        e.style.backgroundImage='url("'+imageUrl+'")';
-        e.style.backgroundPosition=(o.c/(COLS-1))*100+'% '+(o.r/(ROWS-1))*100+'%';
-        e.addEventListener('dragstart',ev=>{
-          ev.dataTransfer.setData('text/plain',JSON.stringify(o));
-          setTimeout(()=>e.style.visibility='hidden',50);
+
+      // criar peças
+      arr.forEach(o => {
+        const e = document.createElement('div');
+        e.className = 'piece';
+        e.draggable = true;
+        e.dataset.idx = o.idx;
+        e.style.backgroundImage = 'url("' + imageUrl + '")';
+        e.style.backgroundPosition = (o.c/(COLS-1))*100 + '% ' + (o.r/(ROWS-1))*100 + '%';
+        e.addEventListener('dragstart', ev => {
+          ev.dataTransfer.setData('text/plain', JSON.stringify(o));
+          setTimeout(()=> e.style.visibility = 'hidden', 50);
         });
-        e.addEventListener('dragend',()=>e.style.visibility='visible');
+        e.addEventListener('dragend', () => e.style.visibility = 'visible');
         piecesEl.appendChild(e);
       });
     }
+
     function onDrop(e){
       e.preventDefault();
-      const data=e.dataTransfer.getData('text/plain');
-      if(!data)return;
-      const o=JSON.parse(data);
-      const slot=e.currentTarget;
-      if(slot.dataset.placed)return;
-      const p=document.querySelector('.piece[data-idx="'+o.idx+'"]');
+      const data = e.dataTransfer.getData('text/plain');
+      if(!data) return;
+      const o = JSON.parse(data);
+      const slot = e.currentTarget;
+      if(slot.dataset.placed) return; // já preenchido
+
+      const p = document.querySelector('.piece[data-idx="'+o.idx+'"]');
+      if(!p) return;
       slot.appendChild(p);
-      slot.dataset.placed=o.idx;
+      // garantir que a peça esteja visível após o append
+      p.style.visibility = 'visible';
+      slot.dataset.placed = o.idx;
       checkWin();
     }
+
     function checkWin(){
-      const s=[...boardEl.children];
-      if(s.some(x=>!x.dataset.placed))return;
-      let ok=true;
-      s.forEach((x,i)=>{if(parseInt(x.dataset.placed)!=i)ok=false;});
-      alert(ok?'Parabéns! Quebra-cabeça montado ✅':'Quase! Tente novamente.');
+      const slots = [...boardEl.children];
+      // se algum slot estiver vazio, não verifica
+      if(slots.some(s => !s.dataset.placed)) return;
+
+      const ok = slots.every(s => parseInt(s.dataset.placed, 10) === parseInt(s.dataset.i, 10));
+      alert(ok ? 'Parabéns! Quebra-cabeça montado ✅' : 'Quase! Tente novamente.');
     }
-    openBtn.onclick=()=>{modal.classList.add('active');setup();}
-    closeBtn.onclick=()=>{modal.classList.remove('active');}
-    shuffleBtn.onclick=setup;
-    modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('active');});
+
+    openBtn.onclick = () => { modal.classList.add('active'); setup(); }
+    closeBtn.onclick = () => { modal.classList.remove('active'); }
+    shuffleBtn.onclick = setup;
+    modal.addEventListener('click', e => { if(e.target === modal) modal.classList.remove('active'); });
   </script>
 </body>
 
