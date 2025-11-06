@@ -15,7 +15,51 @@
       --araucaria-dark: #235924;
       --trunk: #a77d4c;
       --shadow: #b8d8c7;
+      --accent-bright: #48a15a;
     }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
+    body{background:linear-gradient(180deg,var(--bg) 0%, #dbeee0 60%, #cfe6db 100%);color:#123;overflow-x:hidden;position:relative;min-height:100vh;}
+
+/* floating decorative shapes */
+.floaters{position:fixed;inset:0;pointer-events:none;z-index:5}
+.floater{position:absolute;opacity:.12;filter:blur(1px);animation:floaty 8s ease-in-out infinite alternate}
+.floater.leaf{width:140px;height:140px;background:radial-gradient(circle at 30% 30%, rgba(53,122,56,0.95), rgba(35,89,36,0.85));border-radius:50% 20% 50% 20%}
+.floater.circle{width:60px;height:60px;background:var(--araucaria-green);border-radius:50%}
+@keyframes floaty {to { transform: translateY(-18px) rotate(6deg) }}
+
+/* header animation */
+header{position:relative;z-index:20;padding:28px 32px;display:flex;align-items:center;justify-content:space-between;transition:transform .45s ease}
+.logo{width:64px;height:64px;display:grid;place-items:center;border-radius:14px;overflow:hidden;box-shadow:0 6px 20px rgba(12,30,18,0.06);transform-origin:center;animation:logoPop 1.2s ease}
+@keyframes logoPop {0%{transform:scale(.85)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
+
+/* card hover + entrance reveal */
+.card{background:var(--panel);padding:18px;border-radius:12px;box-shadow:0 6px 20px rgba(12,30,18,0.06);transition:transform .35s cubic-bezier(.2,.9,.2,1),box-shadow .35s;transform-origin:center}
+.card:hover{transform:translateY(-8px) rotate(-1deg);box-shadow:0 18px 40px rgba(12,30,18,0.12)}
+.card.reveal{opacity:1;transform:translateY(0);transition:opacity .6s,transform .6s}
+.card{opacity:0;transform:translateY(18px)}
+
+/* gallery image tilt */
+.gallery img{width:100%;border-radius:10px;object-fit:cover;box-shadow:0 4px 12px rgba(0,0,0,0.1);cursor:pointer;transition:transform 0.35s,filter 0.35s}
+.gallery img:hover{transform:scale(1.05) rotate(-1.5deg);filter:brightness(1.05) saturate(1.05)}
+
+/* lightbox tweaks */
+.lightbox img{max-width:90%;max-height:90%;border-radius:12px;box-shadow:0 6px 30px rgba(0,0,0,0.6);transform:translateY(-8px);transition:transform .25s}
+
+/* button ripple */
+button{position:relative;overflow:hidden}
+button .ripple{position:absolute;border-radius:50%;transform:scale(0);opacity:.7;animation:ripple .6s linear;background:rgba(255,255,255,0.35)}
+@keyframes ripple{to{transform:scale(6);opacity:0}}
+
+/* confetti */
+#confetti{pointer-events:none;position:fixed;inset:0;z-index:3000;overflow:hidden}
+.confetti-piece{position:absolute;width:10px;height:14px;opacity:0.95;transform-origin:center;animation:confFall linear forwards}
+@keyframes confFall{to{transform:translateY(120vh) rotate(520deg);opacity:0}}
+/* puzzle feedback */
+.piece.wrong{animation:shake .45s}
+@keyframes shake{0%{transform:translateX(0)}25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-4px)}100%{transform:translateX(0)}}
+
+/* keep other existing styles intact */
     *{box-sizing:border-box}
     html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
     body{background:linear-gradient(180deg,var(--bg) 0%, #dbeee0 60%, #cfe6db 100%);color:#123;overflow-x:hidden}
@@ -45,7 +89,7 @@
 
     /* Lightbox */
     .lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;z-index:1000}
-    .lightbox img{max-width:90%;max-height:90%;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.5)}
+    .lightbox img{max-width:90%;max-height:90%;border-radius:12px;box-shadow:0 6px 30px rgba(0,0,0,0.6);transform:translateY(-8px);transition:transform .25s}
     .lightbox.active{display:flex}
     .lightbox-close{position:absolute;top:20px;right:30px;font-size:32px;color:#fff;cursor:pointer}
 
@@ -138,133 +182,143 @@
   </style>
 </head>
 <body>
-  <!-- Loader Araucária -->
-  <div id="loader-araucaria" class="loader-araucaria-wrap">
-    <div class="eco-loader-araucaria">
-      <svg class="araucaria-sway" width="80" height="120" viewBox="0 0 80 120" fill="none">
-        <!-- Tronco -->
-        <rect x="36" y="54" width="8" height="56" rx="4" fill="var(--trunk)" />
-        <!-- Galhos principais -->
-        <g stroke="var(--araucaria-dark)" stroke-width="2">
-          <path d="M10 60 Q40 66 70 60" />
-          <path d="M14 70 Q40 76 66 70" />
-          <path d="M18 80 Q40 87 62 80" />
-          <path d="M22 92 Q40 100 58 92" />
-        </g>
-        <!-- Tufo superior -->
-        <ellipse cx="40" cy="50" rx="18" ry="8" fill="var(--araucaria-green)" />
-        <!-- Tufos nos galhos -->
-        <ellipse cx="15" cy="60" rx="5" ry="2.3" fill="var(--araucaria-green)" />
-        <ellipse cx="40" cy="66" rx="7" ry="3" fill="var(--araucaria-green)" />
-        <ellipse cx="65" cy="60" rx="5" ry="2.3" fill="var(--araucaria-green)" />
-        <ellipse cx="19" cy="70" rx="4" ry="2" fill="var(--araucaria-green)" />
-        <ellipse cx="40" cy="76" rx="6" ry="2.5" fill="var(--araucaria-green)" />
-        <ellipse cx="61" cy="70" rx="4" ry="2" fill="var(--araucaria-green)" />
-        <ellipse cx="23" cy="80" rx="3.5" ry="1.7" fill="var(--araucaria-green)" />
-        <ellipse cx="40" cy="87" rx="5" ry="2" fill="var(--araucaria-green)" />
-        <ellipse cx="57" cy="80" rx="3.5" ry="1.7" fill="var(--araucaria-green)" />
-        <ellipse cx="27" cy="92" rx="2.5" ry="1.2" fill="var(--araucaria-green)" />
-        <ellipse cx="40" cy="100" rx="4" ry="1.6" fill="var(--araucaria-green)" />
-        <ellipse cx="53" cy="92" rx="2.5" ry="1.2" fill="var(--araucaria-green)" />
-        <ellipse cx="40" cy="44" rx="6" ry="2.5" fill="var(--araucaria-dark)" />
-      </svg>
-      <div class="araucaria-shadow"></div>
-      <div class="araucaria-dots">
-        <div class="araucaria-dot"></div>
-        <div class="araucaria-dot"></div>
-        <div class="araucaria-dot"></div>
+    <!-- floating decorative shapes -->
+    <div class="floaters" aria-hidden="true">
+      <div class="floater leaf" style="left:6%;top:12%;animation-delay:0s"></div>
+      <div class="floater circle" style="right:10%;top:18%;animation-delay:1.6s"></div>
+      <div class="floater leaf" style="left:78%;top:6%;width:100px;height:100px;animation-delay:2.4s"></div>
+    </div>
+
+    <!-- Loader Araucária -->
+    <div id="loader-araucaria" class="loader-araucaria-wrap">
+      <div class="eco-loader-araucaria">
+        <svg class="araucaria-sway" width="80" height="120" viewBox="0 0 80 120" fill="none">
+          <!-- Tronco -->
+          <rect x="36" y="54" width="8" height="56" rx="4" fill="var(--trunk)" />
+          <!-- Galhos principais -->
+          <g stroke="var(--araucaria-dark)" stroke-width="2">
+            <path d="M10 60 Q40 66 70 60" />
+            <path d="M14 70 Q40 76 66 70" />
+            <path d="M18 80 Q40 87 62 80" />
+            <path d="M22 92 Q40 100 58 92" />
+          </g>
+          <!-- Tufo superior -->
+          <ellipse cx="40" cy="50" rx="18" ry="8" fill="var(--araucaria-green)" />
+          <!-- Tufos nos galhos -->
+          <ellipse cx="15" cy="60" rx="5" ry="2.3" fill="var(--araucaria-green)" />
+          <ellipse cx="40" cy="66" rx="7" ry="3" fill="var(--araucaria-green)" />
+          <ellipse cx="65" cy="60" rx="5" ry="2.3" fill="var(--araucaria-green)" />
+          <ellipse cx="19" cy="70" rx="4" ry="2" fill="var(--araucaria-green)" />
+          <ellipse cx="40" cy="76" rx="6" ry="2.5" fill="var(--araucaria-green)" />
+          <ellipse cx="61" cy="70" rx="4" ry="2" fill="var(--araucaria-green)" />
+          <ellipse cx="23" cy="80" rx="3.5" ry="1.7" fill="var(--araucaria-green)" />
+          <ellipse cx="40" cy="87" rx="5" ry="2" fill="var(--araucaria-green)" />
+          <ellipse cx="57" cy="80" rx="3.5" ry="1.7" fill="var(--araucaria-green)" />
+          <ellipse cx="27" cy="92" rx="2.5" ry="1.2" fill="var(--araucaria-green)" />
+          <ellipse cx="40" cy="100" rx="4" ry="1.6" fill="var(--araucaria-green)" />
+          <ellipse cx="53" cy="92" rx="2.5" ry="1.2" fill="var(--araucaria-green)" />
+          <ellipse cx="40" cy="44" rx="6" ry="2.5" fill="var(--araucaria-dark)" />
+        </svg>
+        <div class="araucaria-shadow"></div>
+        <div class="araucaria-dots">
+          <div class="araucaria-dot"></div>
+          <div class="araucaria-dot"></div>
+          <div class="araucaria-dot"></div>
+        </div>
       </div>
     </div>
-  </div>
-  <!-- FIM Loader Araucária -->
+    <!-- FIM Loader Araucária -->
 
-  <div class="wrap">
-    <header>
-      <div class="brand">
-        <div class="logo" aria-hidden="true">
-          <img src="logo.png" alt="Logo">
-        </div>
-        <div>
-          <h1>Sentiero das Araucárias</h1>
-          <p class="lead">Trilha Ecológica</p>
-        </div>
-      </div>
-    </header>
-
-    <main id="sobre">
-      <div class="card-row">
-        <article class="card">
-          <h3>Sobre o Projeto</h3>
-          <p>O Sentiero das Araucárias é uma trilha ecológica criada para promover o conhecimento, a preservação e a socialização do saber sobre a flora da Mata Atlântica.
-Localizada nos fundos da Escola, a trilha oferece uma experiência educativa e científica, aproximando os estudantes da natureza e da importância da conservação ambiental.</p>
-        </article>
-
-        <article class="card">
-          <h3>A mata Atlântica</h3>
-          <p>A Mata Atlântica é um dos biomas mais ricos e diversos do planeta, abrigando inúmeras espécies endêmicas que desempenham papel essencial no equilíbrio ecológico.
-Apesar de sua importância, sua cobertura original foi severamente reduzida pelo desmatamento e outras ações humanas. Por isso, a educação ambiental é essencial para sensibilizar a comunidade sobre a preservação da biodiversidade.</p>
-        </article>
-
-        <article class="card">
-          <h3>A flora da trilha</h3>
-          <p>Durante o projeto, foram estudados quatro grandes grupos de plantas — Briófitas, Pteridófitas, Gimnospermas e Angiospermas:
-
-Briófitas: plantas simples e pequenas, sem vasos condutores, que vivem em locais úmidos e ajudam a manter a umidade do solo.
-
-Pteridófitas: como as samambaias e avencas, possuem vasos condutores e se reproduzem por esporos.
-
-Gimnospermas: incluem as Araucárias, símbolo da trilha, que produzem sementes mas não frutos.
-
-Angiospermas: o grupo mais diverso, com flores e frutos como o feijão, milho e laranja, essenciais na alimentação e polinização.</p>
-        </article>
-
-        <article class="card">
-          <h3>Atividades Realizadas</h3>
-          <p>Os alunos participaram de saídas de campo na Trilha Ecológica Sentiero das Araucárias, realizando observações, registros fotográficos e identificação das espécies com auxílio de aplicativos.
-As coletas foram sustentáveis — apenas folhas e flores — e, em laboratório, o material foi prensado e seco, resultando na criação de um herbário escolar com exemplares catalogados.</p>
-        </article>
-
-        <article class="card">
-          <h3>Quebra Cabeça</h3>
-          <p>Jogo quebra-cabeça</p>
-          <button id="openPuzzle">Jogar Quebra-Cabeça</button>
-        </article>
-      </div>
-
-      <!-- Adicione o modal do quebra-cabeça antes do footer -->
-      <div id="puzzleModal" class="modal">
-        <div class="modal-content">
-          <button id="closeModal" class="close-btn">&times;</button>
-          <h2>Quebra-Cabeça</h2>
-          <p>Arraste as peças para montar a imagem.</p>
-          <div class="modal-body">
-            <div class="pieces" id="pieces"></div>
-            <div class="board" id="board"></div>
+    <div class="wrap">
+      <header>
+        <div class="brand">
+          <div class="logo" aria-hidden="true">
+            <img src="logo.png" alt="Logo">
           </div>
-          <button id="shuffle">Embaralhar</button>
+          <div>
+            <h1>Sentiero das Araucárias</h1>
+            <p class="lead">Trilha Ecológica</p>
+          </div>
         </div>
-      </div>
+      </header>
 
-      <section class="card" style="margin-top:30px">
-        <h3>Fotos</h3>
-        <p>DescFotos:</p>
-        <div class="gallery">
-          <img src="foto1.jpg" alt="Araucaria Generica">
+      <main id="sobre">
+        <div class="card-row">
+          <article class="card">
+            <h3>Sobre o Projeto</h3>
+            <p>O Sentiero das Araucárias é uma trilha ecológica criada para promover o conhecimento, a preservação e a socialização do saber sobre a flora da Mata Atlântica.
+    Localizada nos fundos da Escola, a trilha oferece uma experiência educativa e científica, aproximando os estudantes da natureza e da importância da conservação ambiental.</p>
+          </article>
+
+          <article class="card">
+            <h3>A mata Atlântica</h3>
+            <p>A Mata Atlântica é um dos biomas mais ricos e diversos do planeta, abrigando inúmeras espécies endêmicas que desempenham papel essencial no equilíbrio ecológico.
+    Apesar de sua importância, sua cobertura original foi severamente reduzida pelo desmatamento e outras ações humanas. Por isso, a educação ambiental é essencial para sensibilizar a comunidade sobre a preservação da biodiversidade.</p>
+          </article>
+
+          <article class="card">
+            <h3>A flora da trilha</h3>
+            <p>Durante o projeto, foram estudados quatro grandes grupos de plantas — Briófitas, Pteridófitas, Gimnospermas e Angiospermas:
+
+    Briófitas: plantas simples e pequenas, sem vasos condutores, que vivem em locais úmidos e ajudam a manter a umidade do solo.
+
+    Pteridófitas: como as samambaias e avencas, possuem vasos condutores e se reproduzem por esporos.
+
+    Gimnospermas: incluem as Araucárias, símbolo da trilha, que produzem sementes mas não frutos.
+
+    Angiospermas: o grupo mais diverso, com flores e frutos como o feijão, milho e laranja, essenciais na alimentação e polinização.</p>
+          </article>
+
+          <article class="card">
+            <h3>Atividades Realizadas</h3>
+            <p>Os alunos participaram de saídas de campo na Trilha Ecológica Sentiero das Araucárias, realizando observações, registros fotográficos e identificação das espécies com auxílio de aplicativos.
+    As coletas foram sustentáveis — apenas folhas e flores — e, em laboratório, o material foi prensado e seco, resultando na criação de um herbário escolar com exemplares catalogados.</p>
+          </article>
+
+          <article class="card">
+            <h3>Quebra Cabeça</h3>
+            <p>Jogo quebra-cabeça</p>
+            <button id="openPuzzle">Jogar Quebra-Cabeça</button>
+          </article>
         </div>
-      </section>
-    </main>
 
-    <footer>
+        <!-- Adicione o modal do quebra-cabeça antes do footer -->
+        <div id="puzzleModal" class="modal">
+          <div class="modal-content">
+            <button id="closeModal" class="close-btn">&times;</button>
+            <h2>Quebra-Cabeça</h2>
+            <p>Arraste as peças para montar a imagem.</p>
+            <div class="modal-body">
+              <div class="pieces" id="pieces"></div>
+              <div class="board" id="board"></div>
+            </div>
+            <button id="shuffle">Embaralhar</button>
+          </div>
+        </div>
+
+        <section class="card" style="margin-top:30px">
+          <h3>Fotos</h3>
+          <p>DescFotos:</p>
+          <div class="gallery">
+            <img src="foto1.jpg" alt="Araucaria Generica">
+          </div>
+        </section>
+      </main>
+
+      <footer>
       ♪‱¿•versão 5.0    ‱•¿♪ &nbsp; | &nbsp; 2025
 
-    </footer>
-  </div>
+      </footer>
+    </div>
 
-  <!-- Lightbox -->
-  <div class="lightbox" id="lightbox">
-    <span class="lightbox-close" id="lightbox-close">&times;</span>
-    <img id="lightbox-img" src="" alt="Imagem ampliada">
-  </div>
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+      <span class="lightbox-close" id="lightbox-close">&times;</span>
+      <img id="lightbox-img" src="" alt="Imagem ampliada">
+    </div>
+
+    <!-- confetti container -->
+    <div id="confetti" aria-hidden="true"></div>
 
   <script>
     // Loader hide logic
@@ -274,8 +328,31 @@ As coletas foram sustentáveis — apenas folhas e flores — e, em laboratório
         setTimeout(function() {
           document.getElementById('loader-araucaria').style.display = "none";
         }, 520);
-      }, 1700);
+      }, 1200);
     });
+
+    // button ripple helper
+    document.addEventListener('click', function(e){
+      const btn = e.target.closest('button');
+      if(!btn) return;
+      const r = document.createElement('span');
+      r.className = 'ripple';
+      const rect = btn.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      r.style.width = r.style.height = size + 'px';
+      r.style.left = (e.clientX - rect.left - size/2) + 'px';
+      r.style.top = (e.clientY - rect.top - size/2) + 'px';
+      btn.appendChild(r);
+      setTimeout(()=> r.remove(), 700);
+    }, false);
+
+    // reveal on scroll for cards
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(en=>{
+        if(en.isIntersecting) en.target.classList.add('reveal');
+      });
+    }, {threshold: .12});
+    document.querySelectorAll('.card').forEach(c => io.observe(c));
 
     // Lightbox gallery
     const galleryImages = document.querySelectorAll('.gallery img');
@@ -301,7 +378,7 @@ As coletas foram sustentáveis — apenas folhas e flores — e, em laboratório
       }
     });
 
-    // Código do Quebra-cabeça (corrigido)
+    // Quebra-cabeça (mantive sua lógica e adicionei confete/feedback)
     const ROWS = 3, COLS = 3;
     const piecesEl = document.getElementById('pieces');
     const boardEl = document.getElementById('board');
@@ -322,17 +399,15 @@ As coletas foram sustentáveis — apenas folhas e flores — e, em laboratório
       boardEl.innerHTML = '';
       const arr = makePieces().sort(()=>Math.random()-0.5);
 
-      // criar slots e marcar índice em data-i
       for(let i=0;i<ROWS*COLS;i++){
         const s = document.createElement('div');
         s.className = 'slot';
-        s.dataset.i = i;             // manter o índice do slot explicitamente
+        s.dataset.i = i;
         s.addEventListener('dragover', e => e.preventDefault());
         s.addEventListener('drop', onDrop);
         boardEl.appendChild(s);
       }
 
-      // criar peças
       arr.forEach(o => {
         const e = document.createElement('div');
         e.className = 'piece';
@@ -355,24 +430,56 @@ As coletas foram sustentáveis — apenas folhas e flores — e, em laboratório
       if(!data) return;
       const o = JSON.parse(data);
       const slot = e.currentTarget;
-      if(slot.dataset.placed) return; // já preenchido
+      if(slot.dataset.placed) return;
 
       const p = document.querySelector('.piece[data-idx="'+o.idx+'"]');
       if(!p) return;
       slot.appendChild(p);
-      // garantir que a peça esteja visível após o append
       p.style.visibility = 'visible';
       slot.dataset.placed = o.idx;
       checkWin();
     }
 
+    function createConfetti(){
+      const cRoot = document.getElementById('confetti');
+      const colors = ['#e94560','#f7b267','#34ace0','#78e08f','#6a89cc'];
+      for(let i=0;i<40;i++){
+        const el = document.createElement('div');
+        el.className = 'confetti-piece';
+        el.style.background = colors[Math.floor(Math.random()*colors.length)];
+        el.style.left = Math.random()*100 + 'vw';
+        el.style.top = (Math.random()*10 - 10) + 'vh';
+        el.style.width = (6 + Math.random()*12) + 'px';
+        el.style.height = (8 + Math.random()*16) + 'px';
+        el.style.opacity = (0.7 + Math.random()*0.3);
+        el.style.animationDuration = (2.4 + Math.random()*1.6) + 's';
+        el.style.transform = 'rotate('+ (Math.random()*360) +'deg)';
+        cRoot.appendChild(el);
+        setTimeout(()=> el.remove(), 4200);
+      }
+    }
+
     function checkWin(){
       const slots = [...boardEl.children];
-      // se algum slot estiver vazio, não verifica
       if(slots.some(s => !s.dataset.placed)) return;
 
       const ok = slots.every(s => parseInt(s.dataset.placed, 10) === parseInt(s.dataset.i, 10));
-      alert(ok ? 'Parabéns! Quebra-cabeça montado ✅' : 'Quase! Tente novamente.');
+      if(ok){
+        createConfetti();
+        // feedback agradável
+        setTimeout(()=> alert('Parabéns! Quebra-cabeça montado ✅'), 300);
+      } else {
+        // treme as peças erradas brevemente
+        slots.forEach(s=>{
+          const idx = parseInt(s.dataset.placed||-1,10);
+          if(idx !== parseInt(s.dataset.i,10)){
+            const p = s.querySelector('.piece');
+            if(p) p.classList.add('wrong');
+            setTimeout(()=> p && p.classList.remove('wrong'), 700);
+          }
+        });
+        setTimeout(()=> alert('Quase! Tente novamente.'), 300);
+      }
     }
 
     openBtn.onclick = () => { modal.classList.add('active'); setup(); }
